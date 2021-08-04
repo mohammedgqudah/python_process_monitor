@@ -9,7 +9,7 @@ class Read:
         redis_client = redis.Redis(decode_responses=True)
         monitor = ConsumerMonitor(redis_client=redis_client)
         while True:
-            print(json.dumps(monitor.read(), indent=4))
+            print(json.dumps(monitor.reader.read(), indent=4))
             time.sleep(5)
 
 

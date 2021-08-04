@@ -1,7 +1,9 @@
 import datetime as dt
+import functools
 import json
-import redis
 import logging
+
+from ..reader import Reader
 
 logger = logging.getLogger('process_monitor')
 
@@ -10,7 +12,7 @@ class Monitor:
     _redis_hash_map_prefix = "process_monitor"
 
     def __init__(self, redis_client=None):
-        self.redis_client: redis.Redis = redis_client
+        self.redis_client = redis_client
         self._thread = None
         self._process_name = None
         self._signal_every = None
@@ -36,7 +38,7 @@ class Monitor:
         pipe.hset(self.get_hash_name(), 'last_signal', str(dt.datetime.now()))
         pipe.hset(self.get_hash_name(), 'info', json.dumps(self.info))
         pipe.execute()
-        print("dispatching signal as [%s]" % self._process_name)
+        logger.info("dispatching signal as [%s]" % self._process_name)
 
     def _send_signals(self):
         """send signal every N seconds. runs in a thread."""
@@ -63,19 +65,6 @@ class Monitor:
         self._thread.start()
         self._signals_thread_running = True
 
-    def read(self):
-        keys = self.redis_client.keys("%s_*" % self._redis_hash_map_prefix)
-        return {
-            key.replace("%s_" % self._redis_hash_map_prefix, ""): {
-                **(hash_map := self.redis_client.hgetall(key)),
-                'last_signal_age': (
-                        dt.datetime.now() - dt.datetime.fromisoformat(hash_map.get('last_signal'))
-                ).total_seconds(),
-                'info': json.loads(hash_map['info'])
-            }
-            for key in keys
-        }
-
     def init_info(self):
         self.info = json.loads(self.redis_client.hget(self.get_hash_name(), 'info') or '{}')
 
@@ -87,3 +76,8 @@ class Monitor:
     def info(self, value):
         assert type(value) is dict, "expected info of type %s but got %s" % (dict, type(value))
         self._info = value
+
+    @property
+    @functools.lru_cache()
+    def reader(self):
+        return Reader(self.redis_client, self._redis_hash_map_prefix)

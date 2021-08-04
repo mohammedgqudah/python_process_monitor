@@ -26,15 +26,14 @@ class MyProcess:
 @route('/check-process')
 def check_process():
     monitor = Monitor(args)
-    results = monitor.read()
-    # [{
-    #     'name': 'process-name',
+    results = monitor.reader.read()
+    # {'process-name': {
     #     'last_signal': '2021-08-03 22:36:55.457416',
     #     'last_signal_age': 3,
     #     'info': {
     #       'x': 1
     #     }
-    # }]
+    # }}
     return Response(data=results)
 ```
 

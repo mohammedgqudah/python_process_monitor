@@ -38,7 +38,7 @@ class Monitor:
         pipe.hset(self.get_hash_name(), 'last_signal', str(dt.datetime.now()))
         pipe.hset(self.get_hash_name(), 'info', json.dumps(self.info))
         pipe.execute()
-        logger.info("dispatching signal as [%s]" % self._process_name)
+        logger.debug("dispatching signal as [%s]" % self._process_name)
 
     def _send_signals(self):
         """send signal every N seconds. runs in a thread."""

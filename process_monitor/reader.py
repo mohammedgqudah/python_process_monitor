@@ -63,6 +63,6 @@ class Reader:
     async def async_read(self):
         keys = await self.redis_client.keys("%s_*" % self._redis_hash_map_prefix)
         return {
-            key.replace("%s_" % self._redis_hash_map_prefix, ""): self.async_process_info(key)
+            key.replace("%s_" % self._redis_hash_map_prefix, ""): await self.async_process_info(key)
             for key in keys
         }

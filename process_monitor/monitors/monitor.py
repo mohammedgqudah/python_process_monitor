@@ -76,8 +76,3 @@ class Monitor:
     def info(self, value):
         assert type(value) is dict, "expected info of type %s but got %s" % (dict, type(value))
         self._info = value
-
-    @property
-    @functools.lru_cache()
-    def reader(self):
-        return Reader(self.redis_client, self._redis_hash_map_prefix)

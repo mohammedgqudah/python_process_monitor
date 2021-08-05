@@ -23,10 +23,12 @@ class MyProcess:
 
 ## API - Monitor
 ```python
+from process_monitor import Reader
+
 @route('/check-process')
 def check_process():
-    monitor = Monitor(args)
-    results = monitor.reader.read()
+    monitor_reader = Reader(redis_client=Redis(...))
+    results = monitor_reader.read()
     # {'process-name': {
     #     'last_signal': '2021-08-03 22:36:55.457416',
     #     'last_signal_age': 3,

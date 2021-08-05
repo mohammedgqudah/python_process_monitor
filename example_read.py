@@ -1,15 +1,15 @@
 import json
-import redis
 import time
-from process_monitor import ConsumerMonitor
+from process_monitor import Reader
+import aioredis
 
 
 class Read:
     def __init__(self):
-        redis_client = redis.Redis(decode_responses=True)
-        monitor = ConsumerMonitor(redis_client=redis_client)
+        redis_client = aioredis.Redis(decode_responses=True)
+        monitor_reader = Reader(redis_client=redis_client)
         while True:
-            print(json.dumps(monitor.reader.read(), indent=4))
+            print(json.dumps(monitor_reader.read(), indent=4))
             time.sleep(5)
 
 

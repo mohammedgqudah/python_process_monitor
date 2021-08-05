@@ -42,9 +42,27 @@ class Reader:
             'info': json.loads(hash_map['info'])
         }
 
+    async def async_process_info(self, key):
+        hash_map = await self.redis_client.hgetall(key)
+
+        return {
+            **hash_map,
+            'last_signal_age': (
+                    dt.datetime.now() - dt.datetime.fromisoformat(hash_map.get('last_signal'))
+            ).total_seconds(),
+            'info': json.loads(hash_map['info'])
+        }
+
     def read(self):
         keys = self.async_call(self.redis_client.keys)("%s_*" % self._redis_hash_map_prefix)
         return {
             key.replace("%s_" % self._redis_hash_map_prefix, ""): self.process_info(key)
+            for key in keys
+        }
+
+    async def async_read(self):
+        keys = await self.redis_client.keys("%s_*" % self._redis_hash_map_prefix)
+        return {
+            key.replace("%s_" % self._redis_hash_map_prefix, ""): self.async_process_info(key)
             for key in keys
         }

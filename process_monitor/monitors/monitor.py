@@ -19,6 +19,7 @@ class Monitor:
         self._received_records = 0
         self._signals_thread_running = False
         self._info = None
+        self._start_date = None
         self._asyncio_event_loop = None
 
     def get_event_loop(self):
@@ -47,6 +48,9 @@ class Monitor:
             self._send_signal()
             time.sleep(self._signal_every)
 
+    def set_uptime(self):
+        self.redis_client.hset(self.get_hash_name(), 'start_date', self._start_date.isoformat())
+
     def run_signals_worker(self, process_name: str, signal_every: int = 10):
         """Dispatch signals every N seconds in a thread.
         :param process_name:
@@ -58,9 +62,11 @@ class Monitor:
         assert type(process_name) is str, "expected process_name of type %s but got %s" % (str, type(process_name))
         assert type(signal_every) is int, "expected signal_every of type %s but got %s" % (int, type(signal_every))
         assert signal_every > 0, "signal_every must be greater than 0"
+        self._start_date = dt.datetime.now()
         self._process_name = process_name.replace(" ", "_")
         self._signal_every = signal_every
         self.init_info()
+        self.set_uptime()
         self._thread = threading.Thread(target=self._send_signals, daemon=True)
         self._thread.start()
         self._signals_thread_running = True

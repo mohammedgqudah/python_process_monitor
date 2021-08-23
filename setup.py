@@ -10,8 +10,9 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 setup(
     name='process_monitor',
     description='',
-    version="0.0.0",
-    long_description=open('README.rst').read(),
+    version="0.0.1",
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
     author='Mohammed Qudah',
     author_email='mohghq@gmail.com',
     package_dir={'process_monitor': 'process_monitor'},

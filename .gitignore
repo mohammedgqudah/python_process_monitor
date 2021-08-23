@@ -1,3 +1,7 @@
 .idea/
 venv/
 *.pyc
+.pypirc
+dist
+build
+process_monitor.egg-info
